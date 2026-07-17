@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export const searchSourceSchema = z.enum(['google', 'youtube', 'reddit']);
+
 export const chatBodySchema = z.object({
   message: z.string().min(1).max(32_000),
   conversationId: z.string().optional(),
@@ -15,6 +17,13 @@ export const chatBodySchema = z.object({
   temperature: z.number().min(0).max(2).optional(),
   stream: z.boolean().optional().default(false),
   ephemeral: z.boolean().optional().default(false),
+  webSearch: z.boolean().optional().default(false),
+  searchSources: z.array(searchSourceSchema).min(1).max(3).optional(),
+});
+
+export const searchBodySchema = z.object({
+  query: z.string().min(1).max(500),
+  sources: z.array(searchSourceSchema).min(1).max(3).optional(),
 });
 
 export const createConversationSchema = z.object({

@@ -15,6 +15,8 @@ export class AiController {
         temperature,
         stream,
         ephemeral,
+        webSearch,
+        searchSources,
       } = req.body;
 
       if (stream) {
@@ -26,6 +28,8 @@ export class AiController {
           ephemeral,
           model,
           temperature,
+          webSearch,
+          searchSources,
         });
         return;
       }
@@ -38,6 +42,8 @@ export class AiController {
         ephemeral,
         model,
         temperature,
+        webSearch,
+        searchSources,
       });
       return sendSuccess(res, result);
     } catch (err) {
