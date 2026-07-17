@@ -35,6 +35,7 @@ const envSchema = z.object({
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
+  SERPAPI_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
