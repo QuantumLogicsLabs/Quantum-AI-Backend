@@ -11,6 +11,10 @@ const applyHelmet = helmet as unknown as () => RequestHandler;
 export function createApp() {
   const app = express();
 
+  // Vercel (and other reverse proxies) set X-Forwarded-For. Without this,
+  // express-rate-limit throws ERR_ERL_UNEXPECTED_X_FORWARDED_FOR on every request.
+  app.set('trust proxy', 1);
+
   app.use(applyHelmet());
   app.use(
     cors({
@@ -41,3 +45,7 @@ export function createApp() {
 
   return app;
 }
+
+/** Vercel Express auto-detect requires a default export (function or server). */
+const app = createApp();
+export default app;

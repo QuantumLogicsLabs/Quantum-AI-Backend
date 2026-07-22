@@ -52,6 +52,8 @@ export const globalRateLimiter = rateLimit({
   max: config.RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
+  // trust proxy is enabled in createApp; keep validation from aborting requests on Vercel.
+  validate: { xForwardedForHeader: false },
   store: store('quantum-ai:global'),
   message: { success: false, error: 'Too many requests', code: 'RATE_LIMIT' },
 });
@@ -61,6 +63,7 @@ export const aiRateLimiter = rateLimit({
   max: config.AI_RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   store: store('quantum-ai:ai'),
   message: { success: false, error: 'AI rate limit exceeded', code: 'AI_RATE_LIMIT' },
 });

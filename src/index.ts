@@ -1,4 +1,4 @@
-import { createApp } from './app.js';
+import app from './app.js';
 import { config, logger, connectDatabase } from './config/index.js';
 import { documentStorageService } from './services/DocumentStorageService.js';
 
@@ -6,7 +6,6 @@ async function bootstrap() {
   await connectDatabase();
   await documentStorageService.ensureUploadDir();
 
-  const app = createApp();
   const server = app.listen(config.PORT, () => {
     logger.info(`Quantum AI listening on port ${config.PORT}`, {
       env: config.NODE_ENV,
