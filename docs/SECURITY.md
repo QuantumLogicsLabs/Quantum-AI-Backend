@@ -33,6 +33,11 @@ Include reproduction steps, affected endpoints, and impact.
 - Issues solely in Quantum-AI-Frontend or QuantumChat messenger repos
 - Lost end-user credentials
 
+## XSS controls
+
+- Helmet CSP for API responses (`default-src 'none'`), `nosniff`, `frameguard: deny`
+- Generated downloads use `text/plain` and safe `Content-Disposition` filenames
+
 ## Safe harbor
 
 Good-faith research that follows this policy and avoids abusing real user data
