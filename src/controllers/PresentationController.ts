@@ -1,73 +1,3 @@
-// import type { Request, Response, NextFunction } from 'express';
-// import { powerPointService } from '../services/PowerPointService.js';
-// import { sendSuccess } from '../utils/helpers.js';
-// import { getRouteParam } from '../utils/params.js';
-
-// export class PresentationController {
-//   generatePlan = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const plan = await powerPointService.generatePlanFromDocument(
-//         getRouteParam(req, 'id'),
-//         req.userId!,
-//         req.body
-//       );
-//       return sendSuccess(res, { plan });
-//     } catch (err) {
-//       next(err);
-//     }
-//   };
-
-//   generate = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const id = getRouteParam(req, 'id');
-//       const { buffer, plan, filename } = await powerPointService.generateFromDocument(
-//         id,
-//         req.userId!,
-//         req.body
-//       );
-
-//       if (req.query.download === 'true') {
-//         res.setHeader(
-//           'Content-Type',
-//           'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-//         );
-//         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-//         return res.send(buffer);
-//       }
-
-//       return sendSuccess(res, {
-//         filename,
-//         plan,
-//         size: buffer.length,
-//         downloadHint: `POST /presentations/${id}/download`,
-//       });
-//     } catch (err) {
-//       next(err);
-//     }
-//   };
-
-//   download = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const { buffer, filename } = await powerPointService.generateFromDocument(
-//         getRouteParam(req, 'id'),
-//         req.userId!,
-//         req.body
-//       );
-//       res.setHeader(
-//         'Content-Type',
-//         'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-//       );
-//       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-//       return res.send(buffer);
-//     } catch (err) {
-//       next(err);
-//     }
-//   };
-// }
-
-// export const presentationController = new PresentationController();
-
-
 import type { Request, Response, NextFunction } from 'express';
 import { powerPointService } from '../services/PowerPointService.js';
 import { sendSuccess } from '../utils/helpers.js';
@@ -100,6 +30,8 @@ export class PresentationController {
         req.body
       );
 
+      const buffer = Buffer.from(text, 'utf-8');
+
       if (req.query.download === 'true') {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
@@ -109,10 +41,11 @@ export class PresentationController {
       const artifact = await documentStorageService.saveGeneratedArtifact(
         req.userId!,
         filename,
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'text/plain',
         buffer,
         { sourceDocumentId: id, artifactType: 'presentation' }
       );
+
       await UsageMetric.create({
         userId: req.userId!,
         operation: 'presentation',
@@ -120,6 +53,7 @@ export class PresentationController {
         latencyMs: Date.now() - startedAt,
         success: true,
       });
+
       return sendSuccess(res, {
         filename,
         plan,
@@ -136,18 +70,22 @@ export class PresentationController {
   download = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const startedAt = Date.now();
-      const { buffer, filename } = await powerPointService.generateFromDocument(
+      const { text, filename } = await powerPointService.generateFromDocument(
         getRouteParam(req, 'id'),
         req.userId!,
         req.body
       );
+
+      const buffer = Buffer.from(text, 'utf-8');
+
       await documentStorageService.saveGeneratedArtifact(
         req.userId!,
         filename,
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'text/plain',
         buffer,
         { sourceDocumentId: getRouteParam(req, 'id'), artifactType: 'presentation' }
       );
+
       await UsageMetric.create({
         userId: req.userId!,
         operation: 'presentation',
@@ -155,10 +93,8 @@ export class PresentationController {
         latencyMs: Date.now() - startedAt,
         success: true,
       });
-      res.setHeader(
-        'Content-Type',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-      );
+
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       return res.send(text);
     } catch (err) {
