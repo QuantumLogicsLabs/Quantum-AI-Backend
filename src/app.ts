@@ -8,7 +8,23 @@ import { globalRateLimiter, errorHandler, notFoundHandler } from './middleware/i
 export function createApp() {
   const app = express();
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          defaultSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+          baseUri: ["'none'"],
+          formAction: ["'none'"],
+        },
+      },
+      referrerPolicy: { policy: 'no-referrer' },
+      frameguard: { action: 'deny' },
+      xContentTypeOptions: true,
+    })
+  );
   app.use(
     cors({
       origin: config.CORS_ORIGIN.split(',').map((o) => o.trim()),

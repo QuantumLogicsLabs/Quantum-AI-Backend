@@ -52,6 +52,7 @@ export class PresentationController {
         success: true,
       });
       return sendSuccess(res, {
+        text,
         filename,
         plan,
         size: payload.length,
