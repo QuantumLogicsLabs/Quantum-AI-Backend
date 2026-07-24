@@ -100,8 +100,12 @@ export class AiChatService {
       : options?.sourceLink?.quantumChatPeerId
         ? `peer:${options.sourceLink.quantumChatPeerId}`
         : undefined;
+    // Receipts must be keyed by the QuantumChat user id (sourceLink), not the
+    // AI-service auth id. If JWT_SECRET differs across services and
+    // AUTH_REQUIRED=false, req.userId can become "dev-user" and Chat returns 403.
+    const receiptUserId = options?.sourceLink?.quantumChatPeerId || userId;
     const receipt = destination
-      ? createQuantumChatReceipt(userId, destination, response.content)
+      ? createQuantumChatReceipt(receiptUserId, destination, response.content)
       : undefined;
     return {
       conversationId,
@@ -211,8 +215,10 @@ export class AiChatService {
             : options?.sourceLink?.quantumChatPeerId
               ? `peer:${options.sourceLink.quantumChatPeerId}`
               : undefined;
+          // See non-stream path: sign with QuantumChat user id from sourceLink.
+          const receiptUserId = options?.sourceLink?.quantumChatPeerId || userId;
           const receipt = destination
-            ? createQuantumChatReceipt(userId, destination, fullContent)
+            ? createQuantumChatReceipt(receiptUserId, destination, fullContent)
             : undefined;
           sendEvent('done', {
             conversationId,

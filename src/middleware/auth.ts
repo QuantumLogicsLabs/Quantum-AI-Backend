@@ -50,6 +50,11 @@ export function authenticate(req: Request, _res: Response, next: NextFunction) {
       if (config.AUTH_REQUIRED) {
         return next(new UnauthorizedError('Invalid or expired token'));
       }
+      // JWT_SECRET often differs from QuantumChat. Fall through only when
+      // AUTH_REQUIRED=false; receipts still use sourceLink.quantumChatPeerId.
+      console.warn(
+        '[auth] Bearer token rejected — set JWT_SECRET to match QuantumChat. Falling through because AUTH_REQUIRED=false.'
+      );
     }
   }
 
