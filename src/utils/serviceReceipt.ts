@@ -6,7 +6,11 @@ export function contentHash(content: string): string {
 }
 
 export function createQuantumChatReceipt(userId: string, destination: string, content: string) {
-  if (!config.QUANTUM_AI_SERVICE_SECRET) return undefined;
+  if (!config.QUANTUM_AI_SERVICE_SECRET) {
+    throw new Error(
+      'QUANTUM_AI_SERVICE_SECRET is not configured — cannot sign QuantumChat AI receipts'
+    );
+  }
   const hash = contentHash(content);
   const requestId = crypto.randomUUID();
   const receipt = crypto
