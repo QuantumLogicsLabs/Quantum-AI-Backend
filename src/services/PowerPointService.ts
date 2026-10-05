@@ -245,9 +245,15 @@ const slideSchema = z.object({
   notes: z.string().optional(),
 });
 
+const THEME_IDS = [
+  'science', 'math', 'history_social', 'language_arts',
+  'business', 'technology', 'arts_creative', 'general',
+] as const;
+
 const presentationSchema = z.object({
   presentationTitle: z.string(),
   subtitle: z.string().optional(),
+  theme: z.enum(THEME_IDS).catch('general'),
   slides: z.array(slideSchema),
 });
 
