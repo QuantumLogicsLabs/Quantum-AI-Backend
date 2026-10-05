@@ -259,6 +259,18 @@ const presentationSchema = z.object({
 
 export type PresentationPlan = z.infer<typeof presentationSchema>;
 
+
+const THEME_PALETTES: Record<string, Record<string, string>> = {
+  science: { primary: '0D9488', primaryDark: '134E4A', accent: '5EEAD4', secondary: '0F3B36', light: 'F0FDFA', white: 'FFFFFF', textDim: '5E9890' },
+  math: { primary: '4F46E5', primaryDark: '312E81', accent: 'A5B4FC', secondary: '2E2A6B', light: 'F5F5FF', white: 'FFFFFF', textDim: '7B76B8' },
+  history_social: { primary: 'B45309', primaryDark: '78350F', accent: 'FCD34D', secondary: '5C3A14', light: 'FFFBEB', white: 'FFFFFF', textDim: 'A98356' },
+  language_arts: { primary: 'BE185D', primaryDark: '831843', accent: 'F9A8D4', secondary: '6B1339', light: 'FDF2F8', white: 'FFFFFF', textDim: 'B06E92' },
+  business: { primary: '1E3A8A', primaryDark: '0F172A', accent: 'FBBF24', secondary: '152755', light: 'F8FAFC', white: 'FFFFFF', textDim: '64748B' },
+  technology: { primary: '2563EB', primaryDark: '1E3A8A', accent: '60A5FA', secondary: '0C4A6E', light: 'F8FAFC', white: 'FFFFFF', textDim: '64748B' },
+  arts_creative: { primary: 'C026D3', primaryDark: '701A75', accent: 'FB923C', secondary: '6B1874', light: 'FDF4FF', white: 'FFFFFF', textDim: 'B06EC0' },
+  general: { primary: '2563EB', primaryDark: '1E3A8A', accent: '60A5FA', secondary: '0C4A6E', light: 'F8FAFC', white: 'FFFFFF', textDim: '64748B' },
+};
+
 export class PowerPointService {
   async generatePlanFromDocument(
     documentId: string,
@@ -290,10 +302,13 @@ Create a JSON presentation plan from this document. Structure:
 
 ${sloSection}
 
+Also classify this document's subject area as exactly one of: science, math, history_social, language_arts, business, technology, arts_creative, general — pick whichever fits best, or "general" if none clearly fit.
+
 Return ONLY valid JSON matching this schema:
 {
   "presentationTitle": "string",
   "subtitle": "string",
+  "theme": "science|math|history_social|language_arts|business|technology|arts_creative|general",
   "slides": [
     { "type": "title|objectives|content|example|diagram|summary|slo_questions", "title": "string", "bullets": ["string"], "notes": "optional speaker notes" }
   ]
@@ -320,21 +335,13 @@ ${context}
     return parsed.data;
   }
 
-    async buildPptxBuffer(plan: PresentationPlan): Promise<Buffer> {
+  async buildPptxBuffer(plan: PresentationPlan): Promise<Buffer> {
     const pptx = createPptx();
     pptx.author = 'Quantum AI';
     pptx.title = plan.presentationTitle;
     pptx.layout = 'LAYOUT_WIDE';
 
-    const colors = {
-      primary: '2563EB',
-      primaryDark: '1E3A8A',
-      secondary: '0C4A6E',
-      accent: '60A5FA',
-      light: 'F8FAFC',
-      white: 'FFFFFF',
-      textDim: '64748B',
-    };
+    const colors = THEME_PALETTES[plan.theme] ?? THEME_PALETTES.general;
 
     const typeLabels: Record<string, string> = {
       content: 'KEY POINTS',
